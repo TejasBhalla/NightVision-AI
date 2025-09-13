@@ -1,0 +1,21 @@
+# Node.js
+backend/node_modules/
+backend/dist/
+
+# Python
+ai-engine-python/.venv/
+ai-engine-python/__pycache__/
+ai-engine-python/*.pyc
+ai-engine-python/*.pyo
+ai-engine-python/*.pyd
+
+# Logs & temporary files
+*.log
+*.tmp
+*.temp
+*.mp4
+*.avi
+
+# IDE files
+.vscode/
+.idea/
