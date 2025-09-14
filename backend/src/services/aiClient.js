@@ -1,13 +1,12 @@
 import axios from 'axios';
 import fs from 'fs';
+import path from 'path';
+import os from 'os';
 import FormData from 'form-data';
 
 export async function sendToAI(videoPath, options = {}) {
   const form = new FormData();
-
-  // FastAPI expects field name 'file', but in Node we called it 'video'
-  form.append('file', fs.createReadStream(videoPath));  // map video -> file
-
+  form.append('file', fs.createReadStream(videoPath)); // must match FastAPI field name
   form.append('enhance', String(options.enhance ?? true));
   form.append('detect', String(options.detect ?? true));
   form.append('glow', String(options.glow ?? true));
@@ -19,5 +18,22 @@ export async function sendToAI(videoPath, options = {}) {
     maxContentLength: Infinity,
   });
 
-  return resp.data; // Readable stream
+  // Save the streamed response to a temp file
+  const outPath = path.join(os.tmpdir(), `processed_${Date.now()}.mp4`);
+  const writer = fs.createWriteStream(outPath);
+
+  await new Promise((resolve, reject) => {
+    resp.data.pipe(writer);
+    let error = null;
+    writer.on('error', (err) => {
+      error = err;
+      writer.close();
+      reject(err);
+    });
+    writer.on('close', () => {
+      if (!error) resolve(true);
+    });
+  });
+
+  return outPath; // return the path to Node backend
 }
