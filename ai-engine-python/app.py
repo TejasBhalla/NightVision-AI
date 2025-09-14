@@ -68,7 +68,7 @@ async def process_video(
         # --- Enhance (CLAHE) ---
         if enhance:
             frame = enhance_clahe(frame)
-            frame = apply_gamma(frame, gamma=1.2)
+            frame = apply_gamma(frame, gamma=1.4)
 
         # --- Detect (YOLO) ---
         if detect:

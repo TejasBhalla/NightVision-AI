@@ -15,7 +15,7 @@ def enhance_clahe(frame):
     lab = cv2.merge((cl, a, b))
     return cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
 
-def apply_gamma(frame, gamma=1.5):
+def apply_gamma(frame, gamma=1.4):
     """Apply gamma correction."""
     invGamma = 1.0 / gamma
     table = np.array([(i / 255.0) ** invGamma * 255
