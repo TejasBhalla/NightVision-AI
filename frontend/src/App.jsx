@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import UploadForm from "./components/UploadForm";
 import VideoPlayer from "./components/VideoPlayer";
+import screenshot from "./assets/nightvision-screenshot.png";
 
 export default function App() {
   return (
@@ -17,16 +18,17 @@ export default function App() {
       <div className="absolute inset-0 bg-black/70"></div>
 
       {/* Main Content */}
-      <div className="relative z-10 flex flex-col items-center p-10">
-        {/* Title */}
-        <motion.h1
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="text-4xl md:text-6xl font-extrabold text-green-400 drop-shadow-[0_0_10px_rgba(0,255,0,0.8)] mb-10"
-        >
-          🌙 NightVision AI Engine
-        </motion.h1>
+      <div className="relative z-10 flex flex-col items-center p-10 pt-32">
+  {/* Title */}
+  <motion.h1
+    initial={{ opacity: 0, y: -20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 1 }}
+    className="text-4xl md:text-6xl font-extrabold text-green-400 drop-shadow-[0_0_10px_rgba(0,255,0,0.8)] mb-10"
+  >
+    🌙 NightVision AI Engine
+  </motion.h1>
+
 
         {/* Subtitle */}
         <motion.p
@@ -46,47 +48,102 @@ export default function App() {
         <VideoPlayer />
 
         {/* About Section */}
-        <section className="mt-20 max-w-6xl text-center">
-          <motion.h2
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
-            className="text-3xl md:text-4xl font-bold text-green-400 mb-6 drop-shadow-[0_0_8px_rgba(0,255,0,0.6)]"
-          >
-            🔍 About the Website
-          </motion.h2>
+<section className="mt-20 max-w-6xl text-center px-4">
+  <motion.h2
+    initial={{ opacity: 0, y: 30 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 1 }}
+    className="text-3xl md:text-4xl font-bold text-green-400 mb-6 drop-shadow-[0_0_10px_rgba(0,255,0,0.7)]"
+  >
+    🔍 About NightVision AI Engine
+  </motion.h2>
 
-          <p className="text-green-200 max-w-3xl mx-auto mb-10">
-            This section explains the components of the NightVision AI Engine
-            interface and the technologies behind them.
-          </p>
+  <motion.p
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ delay: 0.3, duration: 1 }}
+    className="text-green-200 max-w-3xl mx-auto mb-6 leading-relaxed text-lg md:text-xl"
+  >
+    The <span className="text-green-400 font-semibold">NightVision AI Engine</span> is a cutting-edge web platform designed to enhance and analyze videos captured in low-light or night-time conditions. It leverages <span className="text-green-400 font-semibold">AI-powered computer vision</span> to brighten scenes, detect objects, and provide real-time insights without losing details.
+  </motion.p>
 
-          {/* Website Screenshot with Labels */}
-          <div className="relative flex justify-center">
-            <img
-              src="/website-screenshot.png" // replace with your screenshot
-              alt="Website UI"
-              className="rounded-xl border-2 border-green-500 shadow-[0_0_20px_rgba(0,255,0,0.6)] max-h-[500px] object-contain"
-            />
+  <motion.p
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ delay: 0.5, duration: 1 }}
+    className="text-green-200 max-w-3xl mx-auto mb-6 leading-relaxed text-lg md:text-xl"
+  >
+    With features like <span className="text-green-400 font-semibold">object detection, glow highlights</span>, and seamless video enhancement, users can transform dim footage into visually rich videos. The interface is built using <span className="text-green-400 font-semibold">React + TailwindCSS</span> for a smooth and responsive experience.
+  </motion.p>
 
-            {/* Labels for UI parts */}
-            <span className="absolute top-10 left-5 bg-green-900/80 px-3 py-1 rounded-lg text-sm border border-green-500">
-              📂 Choose File Button <br /> (React + Tailwind for UI)
-            </span>
+  <motion.p
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ delay: 0.7, duration: 1 }}
+    className="text-green-200 max-w-3xl mx-auto mb-10 leading-relaxed text-lg md:text-xl"
+  >
+    The backend, powered by <span className="text-green-400 font-semibold">FastAPI</span> and <span className="text-green-400 font-semibold">OpenCV + YOLO</span>, ensures fast processing and accurate object detection. Whether for security, wildlife observation, or creative media, the NightVision AI Engine brings clarity to the darkest environments.
+  </motion.p>
 
-            <span className="absolute top-24 right-5 bg-green-900/80 px-3 py-1 rounded-lg text-sm border border-green-500">
-              ⏳ Upload & Processing <br /> (Zustand manages state + Axios API call)
-            </span>
+  {/* Optional Screenshot with Neon Labels */}
+  <div className="relative flex justify-center items-center">
+  {/* Screenshot */}
+  <img
+    src={screenshot}
+    alt="Website UI"
+    className="rounded-xl border-2 border-green-500 shadow-[0_0_25px_rgba(0,255,0,0.6)] max-h-[600px] object-contain"
+  />
 
-            <span className="absolute bottom-20 left-10 bg-green-900/80 px-3 py-1 rounded-lg text-sm border border-green-500">
-              🎥 Original Video <br /> (Rendered with native HTML5 Video)
-            </span>
+  {/* Anchor positions (transparent dots on features) */}
+  {/* Choose File button anchor */}
+  <div id="anchor-choosefile" className="absolute top-[180px] left-1/2 w-2 h-2 bg-green-400 rounded-full"></div>
 
-            <span className="absolute bottom-20 right-10 bg-green-900/80 px-3 py-1 rounded-lg text-sm border border-green-500">
-              ✨ Processed Video <br /> (Generated via FastAPI + OpenCV + YOLO)
-            </span>
-          </div>
-        </section>
+  {/* Enhance/Detect/Glow anchor */}
+  <div id="anchor-enhance" className="absolute top-[250px] left-1/2 w-2 h-2 bg-green-400 rounded-full"></div>
+
+  {/* Original Video anchor */}
+  <div id="anchor-original" className="absolute top-[430px] left-[320px] w-2 h-2 bg-green-400 rounded-full"></div>
+
+  {/* Processing text anchor */}
+  <div id="anchor-processing" className="absolute bottom-[80px] left-1/2 w-2 h-2 bg-green-400 rounded-full"></div>
+
+  {/* Processed Video anchor */}
+  <div id="anchor-processed" className="absolute top-[430px] right-[320px] w-2 h-2 bg-green-400 rounded-full"></div>
+
+  {/* Labels + lines */}
+  {/* Choose File */}
+  <div className="absolute -top-10 left-1/2 -translate-x-1/2 text-green-400 font-bold flex flex-col items-center">
+    📂 Choose File
+    <div className="w-0 h-[60px] border-l-2 border-green-400"></div>
+  </div>
+
+  {/* Enhance/Detect/Glow */}
+  <div className="absolute top-[250px] -left-56 text-green-400 font-bold flex items-center">
+    ✨ Enhance / Detect / Glow
+    <div className="ml-2 w-[220px] border-t-2 border-green-400"></div>
+  </div>
+
+  {/* Original Video */}
+  <div className="absolute bottom-[160px] -left-56 text-green-400 font-bold flex items-center">
+    🎥 Original Video
+    <div className="ml-2 w-[220px] border-t-2 border-green-400"></div>
+  </div>
+
+  {/* Processing Feature */}
+  <div className="absolute -bottom-14 left-1/2 -translate-x-1/2 text-green-400 font-bold flex flex-col items-center">
+    ⚙️ Processing Feature
+    <div className="w-0 h-[60px] border-l-2 border-green-400"></div>
+  </div>
+
+  {/* Processed Video */}
+  <div className="absolute bottom-[160px] -right-64 text-green-400 font-bold flex flex-col items-start w-56">
+    🪄 Processed Video 
+    <span className="text-sm text-gray-300">(Auto-downloads to local storage)</span>
+    <div className="w-[220px] border-t-2 border-green-400 mt-1"></div>
+  </div>
+</div>
+</section>
+
       </div>
     </div>
   );

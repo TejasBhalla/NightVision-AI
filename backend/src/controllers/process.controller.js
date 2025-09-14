@@ -22,38 +22,24 @@ export async function uploadAndProcess(req, res) {
       return res.status(500).json({ error: "processed file not found" });
     }
 
-    const stat = fs.statSync(outPath);
-    const fileSize = stat.size;
-    const range = req.headers.range;
-
+    // ✅ Send file as download
     res.setHeader("Content-Type", "video/mp4");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="processed_${req.file.originalname}"`
+    );
 
-    // ✅ Handle streaming with range requests
-    if (range) {
-      const parts = range.replace(/bytes=/, "").split("-");
-      const start = parseInt(parts[0], 10);
-      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+    const fileStream = fs.createReadStream(outPath);
+    fileStream.pipe(res);
 
-      const chunkSize = end - start + 1;
-      const file = fs.createReadStream(outPath, { start, end });
+    fileStream.on("end", () => {
+      logger.info(`✅ Processed video sent for download: ${outPath}`);
+    });
 
-      res.writeHead(206, {
-        "Content-Range": `bytes ${start}-${end}/${fileSize}`,
-        "Accept-Ranges": "bytes",
-        "Content-Length": chunkSize,
-        "Content-Type": "video/mp4",
-      });
-
-      file.pipe(res);
-    } else {
-      res.writeHead(200, {
-        "Content-Length": fileSize,
-        "Content-Type": "video/mp4",
-      });
-      fs.createReadStream(outPath).pipe(res);
-    }
-
-    logger.info(`✅ Sent processed video: ${outPath}`);
+    fileStream.on("error", (err) => {
+      console.error("❌ File stream error:", err);
+      res.status(500).json({ error: "Failed to send file", details: err.message });
+    });
   } catch (err) {
     console.error("❌ Processing failed:", err);
     return res.status(500).json({ error: "processing failed", details: err.message });
