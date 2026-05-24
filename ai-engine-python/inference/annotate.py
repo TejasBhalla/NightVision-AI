@@ -1,27 +1,34 @@
 import cv2
 import numpy as np
 
-# Colors per class (BGR format for OpenCV)
+# --- Colors per class (BGR) ---
+# Now reindexed for 16 classes (auto rickshaw removed)
 COLORS = {
-    0: (255, 255, 255), # person - white
-    2: (0, 255, 0),     # car - green
-    3: (0, 200, 255),   # motorcycle - yellow-ish
-    5: (255, 0, 0),     # bus - blue
-    7: (255, 0, 255),   # truck - magenta
-    15: (0, 165, 255),  # cat - orange
-    16: (0, 0, 255),    # dog - red
+    0: (0, 255, 0),       # bus - green
+    1: (0, 200, 255),     # car - yellow-ish
+    2: (255, 0, 0),       # motorbike - blue
+    3: (255, 0, 255),     # truck - magenta
+    4: (0, 165, 255),     # pothole - orange
+    5: (0, 0, 255),       # person - red
+    6: (128, 0, 128),     # cat - purple
+    7: (0, 128, 128),     # chicken - teal
+    8: (128, 128, 0),     # cow - olive
+    9: (0, 128, 0),       # dog - dark green
+    10: (128, 0, 0),      # fox - maroon
+    11: (0, 0, 128),      # goat - navy
+    12: (128, 128, 128),  # horse - gray
+    13: (64, 64, 64),     # racoon - dark gray
+    14: (0, 255, 255),    # skunk - cyan
+    15: (255, 255, 0),    # SpeedBreaker - light blue
 }
 
-# Human-readable labels
-LABELS = {
-    0: 'person',
-    2: 'car',
-    3: 'motorcycle',
-    5: 'bus',
-    7: 'truck',
-    15: 'cat',
-    16: 'dog'
-}
+# --- Human-readable labels ---
+LABELS = [
+    'bus', 'car', 'motorbike', 'truck', 'pothole',
+    'person', 'cat', 'chicken', 'cow', 'dog',
+    'fox', 'goat', 'horse', 'racoon', 'skunk', 'SpeedBreaker'
+]
+
 
 def draw_glow_boxes(frame, boxes):
     """
@@ -32,7 +39,8 @@ def draw_glow_boxes(frame, boxes):
     overlay = frame.copy()
 
     for b in boxes:
-        color = COLORS.get(b['cls'], (0, 255, 255))  # default yellow
+        color = COLORS.get(b['cls'], (0, 255, 255))  # fallback yellow
+
         # Outer glow effect (thick fading rectangles)
         for t in [8, 6, 4, 2]:
             cv2.rectangle(
@@ -44,7 +52,8 @@ def draw_glow_boxes(frame, boxes):
             )
 
         # Label text (class + confidence)
-        label = f"{LABELS.get(b['cls'], 'obj')} {b['conf']:.2f}"
+        cls_name = LABELS[b['cls']] if b['cls'] < len(LABELS) else 'obj'
+        label = f"{cls_name} {b['conf']:.2f}"
         (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
         x, y = b['x1'], max(0, b['y1'] - th - 6)
 
@@ -57,7 +66,7 @@ def draw_glow_boxes(frame, boxes):
             thickness=-1
         )
 
-        # Label text itself
+        # Label text
         cv2.putText(
             overlay,
             label,

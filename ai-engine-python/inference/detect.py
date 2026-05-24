@@ -2,21 +2,27 @@ from ultralytics import YOLO
 import numpy as np
 import cv2
 
-# Classes we care about (COCO)
-INTERESTING = {0, 1, 2, 3, 5, 7, 15, 16, 19}
-COCO_CLASSES = {
-    0:'person', 1:'bicycle', 2:'car', 3:'motorcycle', 5:'bus', 7:'truck',
-    15:'cat', 16:'dog', 19:'cow'
-}
+# ✅ Updated class list based on your merged dataset
+CLASS_NAMES = [
+    'bus', 'car', 'motorbike', 'truck',
+    'pothole', 'person', 'cat', 'chicken', 'cow',
+    'dog', 'fox', 'goat', 'horse', 'racoon', 'skunk', 'SpeedBreaker'
+]
+
+# You can select which ones you want to display/detect
+INTERESTING = set(range(len(CLASS_NAMES)))  # all classes
 
 _model = None
 
 def init_model():
-    """Load YOLOv8 once globally (small & fast)."""
+    """Load the custom YOLOv8/YOLO11 model (trained on merged dataset)."""
     global _model
     if _model is None:
-        _model = YOLO("yolov8n.pt")  # replace with your model path if custom
-        _model.to("cuda:0")           # optional, remove if using CPU
+        # ✅ Replace this path with your trained model's .pt file
+        _model = YOLO("../runs/detect/merged_V4_11n_finetune/weights/best.pt")
+        # or if training saved somewhere else:
+        # _model = YOLO("C:/Users/TEJAS/Documents/NightVision/ai-engine-python/runs/detect/merged_dataset_11n/weights/best.pt")
+        _model.to("cuda:0")  # optional GPU acceleration
     return _model
 
 
@@ -30,7 +36,6 @@ def detect_objects(model, frame, conf=0.35):
     return _extract_boxes(results)
 
 
-# ---------------- Helpers ----------------
 def _extract_boxes(results):
     """Convert YOLO results -> list of detections for a single frame."""
     boxes = []
@@ -48,7 +53,7 @@ def _extract_boxes(results):
                 "x2": x2,
                 "y2": y2,
                 "cls": cls,
-                "name": COCO_CLASSES.get(cls, "unknown"),
+                "name": CLASS_NAMES[cls] if cls < len(CLASS_NAMES) else "unknown",
                 "conf": float(b.conf.item())
             })
     return boxes

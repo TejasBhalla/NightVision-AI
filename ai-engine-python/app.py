@@ -1,6 +1,8 @@
 import os
 import cv2
 import tempfile
+import time
+import numpy as np
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -31,7 +33,7 @@ async def process_video(
     detect = detect.lower() == "true"
     glow = glow.lower() == "true"
 
-    # Save uploaded file to temp
+    # --- Save uploaded file to temporary path ---
     suffix = os.path.splitext(file.filename)[-1]
     in_fd, in_path = tempfile.mkstemp(suffix=suffix)
     out_fd, out_path = tempfile.mkstemp(suffix=".mp4")
@@ -45,26 +47,45 @@ async def process_video(
     if not cap.isOpened():
         return JSONResponse({"error": "Cannot open video file"}, status_code=400)
 
-    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    # --- Video parameters ---
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) or 0
     fps = cap.get(cv2.CAP_PROP_FPS) or 25
     w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) or 640)
     h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) or 360)
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
     writer = cv2.VideoWriter(out_path, fourcc, fps, (w, h))
+
+    # --- Processing loop ---
+    frame_count = 0
+    start_time = time.time()
 
     while True:
         ret, frame = cap.read()
         if not ret:
             break
 
-        # Enhance
+        frame_count += 1
+
+        # --- Optional: print progress every 10 frames ---
+        if frame_count % 10 == 0:
+            if total_frames > 0:
+                percent = (frame_count / total_frames) * 100
+                elapsed = time.time() - start_time
+                fps_now = frame_count / elapsed
+                print(f"🟩 Processed {frame_count}/{total_frames} frames "
+                      f"({percent:.1f}%) at {fps_now:.2f} FPS")
+            else:
+                print(f"🟩 Processed {frame_count} frames...")
+
+        # --- Enhance ---
         if enhance:
             frame = enhance_clahe(frame)
             frame = apply_gamma(frame, gamma=1.4)
 
-        # Detect
+        # --- Detect ---
         boxes = detect_objects(model, frame) if detect else []
 
-        # Glow boxes
+        # --- Annotate ---
         if glow and boxes:
             frame = draw_glow_boxes(frame, boxes)
 
@@ -73,9 +94,41 @@ async def process_video(
     cap.release()
     writer.release()
 
-    # ✅ Return the processed file directly instead of JSON
+    total_time = time.time() - start_time
+    print(f"✅ Completed {frame_count} frames in {total_time:.2f}s "
+          f"({frame_count / total_time:.2f} FPS avg)")
+
+    # --- Return processed video file ---
     return FileResponse(
         out_path,
         media_type="video/mp4",
         filename="processed.mp4"
     )
+
+@app.post("/detect")
+async def detect(file: UploadFile = File(...), enhance: str = Form("true")):
+    """
+    Receives an uploaded image (JPG/PNG), optionally enhances it,
+    runs YOLOv8 inference, and returns detections as JSON.
+    """
+    try:
+        enhance_flag = enhance.lower() == "true"
+
+        # Read image
+        contents = await file.read()
+        npimg = np.frombuffer(contents, np.uint8)
+        frame = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
+
+        # Apply enhancement if requested
+        if enhance_flag:
+            frame = enhance_clahe(frame)
+            frame = apply_gamma(frame, gamma=1.4)
+
+        # Detect objects
+        detections = detect_objects(model, frame)
+
+        return JSONResponse(content={"detections": detections})
+
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+

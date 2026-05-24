@@ -4,6 +4,7 @@ backend/dist/
 
 # Python
 ai-engine-python/.venv/
+ai-engine-python/datasets
 ai-engine-python/__pycache__/
 ai-engine-python/*.pyc
 ai-engine-python/*.pyo
